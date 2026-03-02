@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Client Dashboard — PPC Platform{% endblock %}
+{% block nav_extra %}
+<a href="/dashboard/client">Dashboard</a> &nbsp; <a href="/dashboard/affiliate">Affiliate</a> &nbsp;
+<button type="button" class="btn btn-ghost" id="logout-btn">Logout</button>
+{% endblock %}
+{% block head %}
+<style>
+  .dash { max-width: 960px; margin: 0 auto; padding: 1.5rem; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .card { background: rgba(30,41,59,0.6); border: 1px solid rgba(148,163,184,0.15); border-radius: 12px; padding: 1.25rem; }
+  .card h3 { font-size: 0.875rem; color: #94a3b8; margin-bottom: 0.25rem; }
+  .card .val { font-size: 1.5rem; font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 0.6rem; text-align: left; border-bottom: 1px solid rgba(148,163,184,0.1); }
+  th { color: #94a3b8; font-size: 0.8rem; }
+  .badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.75rem; }
+  .badge-active { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+  .badge-paused { background: rgba(234, 179, 8, 0.2); color: #facc15; }
+  .form-inline { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-end; margin-bottom: 1.5rem; }
+  .form-inline input { padding: 0.5rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: #0f172a; color: #fff; min-width: 140px; }
+  .form-inline button { padding: 0.5rem 1rem; border-radius: 8px; background: #22d3ee; color: #0f172a; font-weight: 600; border: none; cursor: pointer; }
+  .live { font-size: 0.75rem; color: #4ade80; margin-left: 0.5rem; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="dash">
+  <h1 style="margin-bottom: 0.5rem;">Client Dashboard</h1>
+  <p style="color: #94a3b8; margin-bottom: 1.5rem;" id="client-name"></p>
+
+  <div class="cards" data-poll-url="/api/client/dashboard/poll" data-poll-interval="5">
+    <div class="card"><h3>Total Clicks</h3><span class="val" data-poll-bind="summary.total_clicks">0</span><span class="live">live</span></div>
+    <div class="card"><h3>Total Spend</h3><span class="val" data-poll-bind="summary.total_spend" data-poll-format="currency">₹0</span></div>
+    <div class="card"><h3>Campaigns</h3><span class="val" data-poll-bind="summary.total_campaigns">0</span></div>
+    <div class="card"><h3>Active</h3><span class="val" data-poll-bind="summary.active_campaigns">0</span></div>
+  </div>
+
+  <h2 style="margin-bottom: 0.75rem;">Create campaign</h2>
+  <form id="create-campaign" class="form-inline">
+    <input type="text" name="name" placeholder="Campaign name" required>
+    <input type="url" name="offer_url" placeholder="Destination URL" required>
+    <input type="number" name="cost_per_click" step="0.01" min="0" placeholder="CPC (₹)" required>
+    <input type="number" name="budget" step="0.01" min="0" placeholder="Budget (₹)">
+    <button type="submit">Create</button>
+  </form>
+  <div id="create-err" class="err"></div>
+
+  <h2 style="margin: 1.5rem 0 0.75rem;">Campaigns</h2>
+  <div id="campaigns-list">
+    <p style="color: #94a3b8;">Loading…</p>
+  </div>
+</div>
+<script src="/static/js/polling.js"></script>
+<script>
+(function() {
+  var campaignsEl = document.getElementById('campaigns-list');
+  var clientNameEl = document.getElementById('client-name');
+  var createForm = document.getElementById('create-campaign');
+  var createErr = document.getElementById('create-err');
+
+  function loadDashboard() {
+    return window.PPC_API.clientDashboard().then(function(data) {
+      if (data.client) clientNameEl.textContent = data.client.company_name || 'Client';
+      renderCampaigns(data.campaigns || []);
+      return data;
+    });
+  }
+
+  function renderCampaigns(campaigns) {
+    if (!campaigns.length) {
+      campaignsEl.innerHTML = '<p style="color: #94a3b8;">No campaigns yet. Create one above.</p>';
+      return;
+    }
+    var html = '<table><thead><tr><th>Name</th><th>Status</th><th>Clicks</th><th>Spend</th><th>CPC</th><th>Offer URL</th></tr></thead><tbody>';
+    campaigns.forEach(function(c) {
+      var statusClass = (c.status === 'active') ? 'badge-active' : 'badge-paused';
+      html += '<tr><td>' + (c.name || '-') + '</td><td><span class="badge ' + statusClass + '">' + (c.status || '-') + '</span></td><td>' + (c.total_clicks || 0) + '</td><td>₹' + (c.total_spend || 0).toFixed(2) + '</td><td>₹' + (c.cost_per_click || 0).toFixed(2) + '</td><td><a href="' + (c.offer_url || '#') + '" target="_blank" rel="noopener">Link</a></td></tr>';
+    });
+    html += '</tbody></table>';
+    campaignsEl.innerHTML = html;
+  }
+
+  window.PPC_API.me()
+    .then(function(me) {
+      if ((me.user && me.user.role) === 'affiliate') {
+        window.location.replace('/dashboard/affiliate');
+        return;
+      }
+      return loadDashboard();
+    })
+    .then(function() {
+      if (window.DashboardPolling) window.DashboardPolling.autoStart();
+    })
+    .catch(function(err) {
+      if (err.status === 404 && (err.data && err.data.error && err.data.error.indexOf('Not registered') !== -1)) {
+        window.PPC_API.clientRegister({}).then(function() { loadDashboard(); });
+        return;
+      }
+      if (err.status === 401) {
+        window.location.href = '/login?next=' + encodeURIComponent('/dashboard/client');
+        return;
+      }
+      campaignsEl.innerHTML = '<p class="err">' + (err.data && err.data.error || err.message) + '</p>';
+    });
+
+  createForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    createErr.textContent = '';
+    var data = {
+      name: createForm.name.value.trim(),
+      offer_url: createForm.offer_url.value.trim(),
+      cost_per_click: parseFloat(createForm.cost_per_click.value) || 0,
+      budget: parseFloat(createForm.budget.value) || 0
+    };
+    window.PPC_API.clientCreateCampaign(data)
+      .then(function() { createForm.reset(); return loadDashboard(); })
+      .then(function() {})
+      .catch(function(err) { createErr.textContent = (err.data && err.data.error) || err.message; });
+  });
+
+  document.getElementById('logout-btn').addEventListener('click', function() {
+    window.PPC_API.logout().then(function() { window.location.href = '/'; });
+  });
+})();
+</script>
+{% endblock %}

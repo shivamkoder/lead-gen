@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Sign up — PPC Platform{% endblock %}
+{% block head %}
+<style>
+  .form-wrap { max-width: 420px; margin: 2rem auto; background: linear-gradient(145deg, rgba(30,41,59,0.6), rgba(15,23,42,0.6)); border: 1px solid rgba(148,163,184,0.15); border-radius: 20px; padding: 2rem; }
+  .form-wrap h2 { text-align: center; font-size: 1.5rem; margin-bottom: 0.5rem; }
+  .form-wrap .sub { text-align: center; color: #94a3b8; font-size: 0.875rem; margin-bottom: 1.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; color: #cbd5e1; }
+  .form-group input, .form-group select { width: 100%; padding: 0.6rem 0.75rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: #0f172a; color: #fff; outline: none; }
+  .form-group input:focus { border-color: #22d3ee; }
+  .signup-btn { width: 100%; margin-top: 0.5rem; padding: 0.75rem; border-radius: 10px; background: #22d3ee; color: #0f172a; font-weight: 600; border: none; cursor: pointer; }
+  .signup-btn:hover { background: #06b6d4; }
+  .signup-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .login-link { text-align: center; margin-top: 1rem; font-size: 0.875rem; color: #94a3b8; }
+  .back { position: absolute; top: 1rem; left: 1rem; color: #94a3b8; font-size: 0.875rem; }
+</style>
+{% endblock %}
+{% block content %}
+<a href="/" class="back">← Back</a>
+<div class="form-wrap">
+  <h2>Create account</h2>
+  <p class="sub">Join as Advertiser or Affiliate</p>
+  <form id="signup-form">
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" name="email" placeholder="you@example.com" required>
+    </div>
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" name="username" placeholder="johndoe" required>
+    </div>
+    <div class="form-group">
+      <label>Password (8+ chars, upper, lower, number)</label>
+      <input type="password" name="password" placeholder="••••••••" required>
+    </div>
+    <div class="form-group">
+      <label>I am a</label>
+      <select name="role">
+        <option value="client">Advertiser (client)</option>
+        <option value="affiliate">Affiliate (publisher)</option>
+        <option value="user">Just browsing</option>
+      </select>
+    </div>
+    <div id="signup-err" class="err"></div>
+    <div id="signup-msg" class="msg"></div>
+    <button type="submit" class="signup-btn" id="signup-btn">Sign up</button>
+  </form>
+  <p class="login-link">Already have an account? <a href="/login">Log in</a></p>
+</div>
+<script>
+(function() {
+  var form = document.getElementById('signup-form');
+  var errEl = document.getElementById('signup-err');
+  var msgEl = document.getElementById('signup-msg');
+  var btn = document.getElementById('signup-btn');
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    errEl.textContent = '';
+    msgEl.textContent = '';
+    btn.disabled = true;
+
+    var data = {
+      email: form.email.value.trim(),
+      username: form.username.value.trim(),
+      password: form.password.value,
+      role: form.role.value || 'user'
+    };
+
+    window.PPC_API.register(data)
+      .then(function(res) {
+        msgEl.textContent = 'Account created. Redirecting to login…';
+        setTimeout(function() { window.location.href = '/login?registered=1'; }, 1200);
+      })
+      .catch(function(err) {
+        errEl.textContent = (err.data && err.data.error) || err.message || 'Sign up failed';
+        btn.disabled = false;
+      });
+  });
+})();
+</script>
+{% endblock %}

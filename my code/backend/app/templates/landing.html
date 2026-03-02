@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}PPC Affiliate Platform — Pay Per Click Traffic{% endblock %}
+{% block content %}
+<div style="max-width: 720px; margin: 4rem auto; padding: 2rem; text-align: center;">
+  <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">Pay-Per-Click Affiliate Platform</h1>
+  <p style="color: #94a3b8; font-size: 1.125rem; margin-bottom: 2rem;">
+    Advertisers get traffic. Affiliates earn per click. You control pricing and payouts.
+  </p>
+  <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 3rem;">
+    <a href="/signup" class="btn btn-primary" style="padding: 0.75rem 1.5rem;">Get started</a>
+    <a href="/login" class="btn btn-ghost">Log in</a>
+    <a href="/api/demo/dashboard/client" target="_blank" class="btn btn-ghost">View demo (client)</a>
+    <a href="/api/demo/dashboard/affiliate" target="_blank" class="btn btn-ghost">View demo (affiliate)</a>
+  </div>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; text-align: left;">
+    <div style="background: rgba(30,41,59,0.5); border: 1px solid rgba(148,163,184,0.15); border-radius: 12px; padding: 1.25rem;">
+      <strong>Advertisers</strong>
+      <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 0.5rem;">Create campaigns, set CPC and budget, get a tracking link. Pay only for clicks.</p>
+    </div>
+    <div style="background: rgba(30,41,59,0.5); border: 1px solid rgba(148,163,184,0.15); border-radius: 12px; padding: 1.25rem;">
+      <strong>Affiliates</strong>
+      <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 0.5rem;">Pick campaigns, get your link, drive traffic. Earn per valid click.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

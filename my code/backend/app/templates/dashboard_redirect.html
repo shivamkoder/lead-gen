@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — PPC Platform{% endblock %}
+{% block content %}
+<div style="max-width: 480px; margin: 4rem auto; padding: 2rem; text-align: center;">
+  <p id="status">Checking login…</p>
+  <p><a href="/login" id="login-link" style="display: none;">Log in</a></p>
+</div>
+<script>
+(function() {
+  var status = document.getElementById('status');
+  var loginLink = document.getElementById('login-link');
+  window.PPC_API.me()
+    .then(function(res) {
+      var role = (res.user && res.user.role) || '';
+      if (role === 'client') window.location.replace('/dashboard/client');
+      else if (role === 'affiliate') window.location.replace('/dashboard/affiliate');
+      else {
+        status.textContent = 'Choose your dashboard or register as client/affiliate.';
+        loginLink.style.display = 'inline';
+        loginLink.href = '/login';
+      }
+    })
+    .catch(function() {
+      status.textContent = 'Please log in to view your dashboard.';
+      loginLink.style.display = 'inline';
+    });
+})();
+</script>
+{% endblock %}

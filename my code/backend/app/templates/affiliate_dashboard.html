@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Affiliate Dashboard — PPC Platform{% endblock %}
+{% block nav_extra %}
+<a href="/dashboard/client">Client</a> &nbsp; <a href="/dashboard/affiliate">Dashboard</a> &nbsp;
+<button type="button" class="btn btn-ghost" id="logout-btn">Logout</button>
+{% endblock %}
+{% block head %}
+<style>
+  .dash { max-width: 960px; margin: 0 auto; padding: 1.5rem; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .card { background: rgba(30,41,59,0.6); border: 1px solid rgba(148,163,184,0.15); border-radius: 12px; padding: 1.25rem; }
+  .card h3 { font-size: 0.875rem; color: #94a3b8; margin-bottom: 0.25rem; }
+  .card .val { font-size: 1.5rem; font-weight: 700; }
+  .live { font-size: 0.75rem; color: #4ade80; margin-left: 0.5rem; }
+  .link-box { background: #0f172a; border: 1px solid rgba(148,163,184,0.2); border-radius: 8px; padding: 0.75rem; font-size: 0.85rem; word-break: break-all; margin-top: 0.5rem; }
+  .link-box a { color: #22d3ee; }
+  .campaign-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin-bottom: 1rem; padding: 0.75rem; background: rgba(30,41,59,0.4); border-radius: 8px; }
+  .campaign-row .name { font-weight: 600; }
+  .campaign-row button { padding: 0.4rem 0.75rem; border-radius: 6px; background: #22d3ee; color: #0f172a; border: none; cursor: pointer; font-size: 0.85rem; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="dash">
+  <h1 style="margin-bottom: 0.5rem;">Affiliate Dashboard</h1>
+  <p style="color: #94a3b8; margin-bottom: 1.5rem;" id="affiliate-info"></p>
+
+  <div class="cards" data-poll-url="/api/affiliate/dashboard/poll" data-poll-interval="5">
+    <div class="card"><h3>Valid Clicks</h3><span class="val" data-poll-bind="valid_clicks">0</span><span class="live">live</span></div>
+    <div class="card"><h3>Total Earnings</h3><span class="val" data-poll-bind="total_earnings" data-poll-format="currency">₹0</span></div>
+    <div class="card"><h3>Pending Payout</h3><span class="val" data-poll-bind="pending_payout" data-poll-format="currency">₹0</span></div>
+  </div>
+
+  <h2 style="margin: 1.5rem 0 0.75rem;">Available campaigns</h2>
+  <p style="color: #94a3b8; font-size: 0.9rem;">Get your tracking link for a campaign and share it. You earn per valid click.</p>
+  <div id="campaigns-list" style="margin-top: 1rem;">
+    <p style="color: #94a3b8;">Loading…</p>
+  </div>
+  <div id="link-result" style="margin-top: 1rem;"></div>
+</div>
+<script src="/static/js/polling.js"></script>
+<script>
+(function() {
+  var campaignsEl = document.getElementById('campaigns-list');
+  var affiliateInfo = document.getElementById('affiliate-info');
+  var linkResult = document.getElementById('link-result');
+
+  function loadProfile() {
+    return window.PPC_API.affiliateProfile().then(function(data) {
+      if (data.affiliate) {
+        affiliateInfo.textContent = 'Referral code: ' + (data.affiliate.referral_code || '-');
+      }
+      return data;
+    });
+  }
+
+  function loadCampaigns() {
+    return window.PPC_API.affiliateCampaigns().then(function(data) {
+      var campaigns = data.campaigns || [];
+      if (!campaigns.length) {
+        campaignsEl.innerHTML = '<p style="color: #94a3b8;">No active campaigns available.</p>';
+        return;
+      }
+      var html = '';
+      campaigns.forEach(function(c) {
+        html += '<div class="campaign-row"><span class="name">' + (c.name || 'Campaign #' + c.id) + '</span> <span style="color: #94a3b8;">₹' + (c.cost_per_click || 0).toFixed(2) + '/click</span> <button type="button" data-campaign-id="' + c.id + '">Get my link</button></div>';
+      });
+      campaignsEl.innerHTML = html;
+      campaignsEl.querySelectorAll('button[data-campaign-id]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var id = btn.getAttribute('data-campaign-id');
+          window.PPC_API.affiliateLink(id).then(function(res) {
+            linkResult.innerHTML = '<div class="link-box">Your link: <a href="' + res.tracking_url + '" target="_blank" rel="noopener">' + res.tracking_url + '</a><br><small style="color: #94a3b8;">Earn ₹' + (res.affiliate_cpc || 0).toFixed(2) + ' per valid click. Copy and share.</small></div>';
+          }).catch(function(err) {
+            linkResult.innerHTML = '<p class="err">' + (err.data && err.data.error || err.message) + '</p>';
+          });
+        });
+      });
+    });
+  }
+
+  window.PPC_API.me()
+    .then(function(me) {
+      if ((me.user && me.user.role) === 'client') {
+        window.location.replace('/dashboard/client');
+        return;
+      }
+      return loadProfile();
+    })
+    .then(function() { return loadCampaigns(); })
+    .then(function() {
+      if (window.DashboardPolling) window.DashboardPolling.autoStart();
+    })
+    .catch(function(err) {
+      if (err.status === 404 && (err.data && err.data.error && err.data.error.indexOf('Not registered') !== -1)) {
+        window.PPC_API.affiliateRegister({}).then(function() {
+          loadProfile();
+          loadCampaigns();
+          if (window.DashboardPolling) window.DashboardPolling.autoStart();
+        });
+        return;
+      }
+      if (err.status === 401) {
+        window.location.href = '/login?next=' + encodeURIComponent('/dashboard/affiliate');
+        return;
+      }
+      campaignsEl.innerHTML = '<p class="err">' + (err.data && err.data.error || err.message) + '</p>';
+    });
+
+  document.getElementById('logout-btn').addEventListener('click', function() {
+    window.PPC_API.logout().then(function() { window.location.href = '/'; });
+  });
+})();
+</script>
+{% endblock %}
