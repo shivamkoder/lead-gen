@@ -83,6 +83,25 @@
     });
   }
 
+  // socket.io integration: if client library present, override startPolling behavior
+  if (typeof io !== 'undefined') {
+    var originalStart = startPolling;
+    startPolling = function(url, intervalMs, callback) {
+      // ignore url/interval (server pushes updates)
+      var socket = io();
+      socket.on('dashboard_update', function(data) {
+        if (data && typeof callback === 'function') callback(data);
+        try {
+          var event = new CustomEvent(POLL_EVENT, { detail: data });
+          window.dispatchEvent(event);
+        } catch (e) {}
+      });
+      return function stop() {
+        socket.disconnect();
+      };
+    };
+  }
+
   global.DashboardPolling = {
     startPolling: startPolling,
     autoStart: autoStart,

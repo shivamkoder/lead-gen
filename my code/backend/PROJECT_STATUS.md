@@ -29,7 +29,7 @@
 | **Models** | Done | User, Client, Affiliate, Campaign, Click, Lead, Conversion, Payout, Analytics. |
 | **Admin** | Done | Dashboard, users, campaigns, leads, payouts, analytics (legacy lead/conversion). |
 | **Demo (no auth)** | Done | Fake client/affiliate dashboards and stats + poll endpoints. |
-| **Realtime polling** | Done | `/api/client/dashboard/poll`, `/api/affiliate/dashboard/poll` + `static/js/polling.js`. |
+| **Realtime polling** | Done -> upgraded | `/api/.../poll` endpoints still exist; added SocketIO `dashboard_update` events and enhanced `polling.js` to fall back to sockets. |
 | **Procfile** | Done | `web: gunicorn run:app` for Render. |
 | **CORS** | Done | Enabled for `/api/*` (origins `*`). |
 
@@ -41,7 +41,7 @@
 | **API integration** | Missing | No HTML file uses `fetch()` to call `/api/auth`, `/api/client`, or `/api/affiliate`. Forms do not POST to the Flask API. |
 | **Client dashboard UI** | Missing | No HTML page that shows campaigns, clicks, spend and uses `/api/client/dashboard` or poll. |
 | **Affiliate dashboard UI** | Missing | No HTML page that shows earnings, links, and uses `/api/affiliate` or poll. |
-| **Static assets** | Backend only | `backend/static/js/polling.js` exists; no shared or frontend-specific structure. |
+| **Static assets** | Backend only | consolidated under `app/static/`; removed duplicate `backend/static` folder. |
 
 ---
 

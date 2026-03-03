@@ -130,6 +130,35 @@ def create_campaign():
     db.session.add(campaign)
     db.session.commit()
     base_url = request.host_url.rstrip('/')
+    # notify client room of updated dashboard
+    try:
+        from app.extensions import socketio
+        campaigns = Campaign.query.filter_by(client_id=client.id).all()
+        total_clicks = sum(c.total_clicks or 0 for c in campaigns)
+        total_spend = sum(float(c.total_spend or 0) for c in campaigns)
+        active_count = sum(1 for c in campaigns if c.status == 'active')
+        socketio.emit('dashboard_update', {
+            'ts': time.time(),
+            'summary': {
+                'total_campaigns': len(campaigns),
+                'active_campaigns': active_count,
+                'total_clicks': total_clicks,
+                'total_spend': round(total_spend, 2),
+            },
+            'campaigns': [
+                {
+                    'id': c.id,
+                    'name': c.name,
+                    'status': c.status,
+                    'total_clicks': c.total_clicks or 0,
+                    'total_spend': float(c.total_spend or 0),
+                }
+                for c in campaigns[:50]
+            ],
+        }, room=f'client_{client.id}')
+    except Exception:
+        pass
+    
     return jsonify({
         'message': 'Campaign created',
         'campaign': {

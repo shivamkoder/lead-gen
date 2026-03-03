@@ -26,3 +26,8 @@ email-validator==2.1.0
 
 # Production
 gunicorn==21.2.0
+
+# Real-time updates
+Flask-SocketIO==6.3.2
+python-socketio==5.9.0
+

@@ -18,6 +18,9 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
     login_manager.init_app(app)
     cors.init_app(app, resources={r"/api/*": {"origins": "*"}})
+    # initialize realtime extension
+    from app.extensions import socketio
+    socketio.init_app(app)
     
     # Register blueprints
     from app.routes.auth import auth_bp

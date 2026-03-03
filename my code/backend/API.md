@@ -48,6 +48,7 @@ All require login. After signup with `role: "client"`, call `POST /api/client/re
 | PUT | `/api/client/campaigns/<id>` | Update campaign |
 | GET | `/api/client/dashboard` | Dashboard summary + campaigns |
 | GET | `/api/client/dashboard/poll` | Lightweight poll for realtime |
+| WS  | `dashboard_update` event | Realtime socket.io event; clients auto-join `client_<id>` room |
 
 ### POST /api/client/register
 
@@ -84,6 +85,7 @@ All require login. Call `POST /api/affiliate/register` once to create Affiliate 
 | GET | `/api/affiliate/links/<campaign_id>` | Get my tracking link |
 | GET | `/api/affiliate/earnings` | Earnings + valid_clicks |
 | GET | `/api/affiliate/dashboard/poll` | Lightweight poll for realtime |
+| WS  | `dashboard_update` event | Realtime socket.io event; clients auto-join `affiliate_<id>` room |
 
 ### GET /api/affiliate/links/<campaign_id>
 

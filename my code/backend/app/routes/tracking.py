@@ -5,10 +5,13 @@ PPC: public /t/<campaign_id>?aff=affiliateID for pay-per-click redirect + valida
 """
 
 from datetime import datetime, timedelta
+import time
 from flask import Blueprint, request, jsonify, redirect
-from app.extensions import db
+from flask_login import current_user
+from app.extensions import db, socketio
 from app.models import Campaign, Lead, Affiliate, Analytics, Click
 from app.services.fraud import FraudDetector
+from flask_socketio import join_room
 import uuid
 
 # Duplicate click window: same visitor (fingerprint) within this time = 1 click only
@@ -18,6 +21,18 @@ tracking_bp = Blueprint('tracking', __name__)
 
 # Public PPC redirect: yourdomain.com/t/<campaign_id>?aff=affiliateID
 ppc_bp = Blueprint('ppc', __name__)
+
+
+# SocketIO connection handling (auto‑join user rooms)
+@socketio.on('connect')
+def _socket_connect():
+    # current_user is proxied by flask-login; rooms are used for client/affiliate updates
+    if not current_user.is_authenticated:
+        return False
+    if getattr(current_user, 'client', None):
+        join_room(f"client_{current_user.client.id}")
+    if getattr(current_user, 'affiliate', None):
+        join_room(f"affiliate_{current_user.affiliate.id}")
 
 
 @ppc_bp.route('/t/<int:campaign_id>', methods=['GET'])
@@ -46,6 +61,32 @@ def ppc_redirect(campaign_id):
     fraud = FraudDetector()
     if fraud.is_bot_click(user_agent):
         # Record click but invalid; redirect anyway
+        click = Click(
+            campaign_id=campaign_id,
+            affiliate_id=affiliate_id,
+            ip_address=ip,
+            user_agent=user_agent,
+            is_valid=False,
+        )
+        db.session.add(click)
+        db.session.commit()
+        return redirect(campaign.offer_url, code=302)
+
+    # additional IP‑level throttle to prevent refresh‑spam (10 seconds)
+    IP_COOLDOWN_SECONDS = 10
+    ip_window = datetime.utcnow() - timedelta(seconds=IP_COOLDOWN_SECONDS)
+    recent_ip = (
+        db.session.query(Click.id)
+        .filter(
+            Click.campaign_id == campaign_id,
+            Click.ip_address == ip,
+            Click.created_at >= ip_window,
+            Click.is_valid == True,
+        )
+        .first()
+    )
+    if recent_ip:
+        # too soon from same IP; mark invalid
         click = Click(
             campaign_id=campaign_id,
             affiliate_id=affiliate_id,
@@ -108,6 +149,48 @@ def ppc_redirect(campaign_id):
         affiliate.pending_payout = (affiliate.pending_payout or 0) + affiliate_cpc
 
     db.session.commit()
+
+    # emit realtime updates for client and affiliate dashboards
+    try:
+        # affiliate room update
+        if affiliate:
+            socketio.emit('dashboard_update', {
+                'ts': time.time(),
+                'valid_clicks': Click.query.filter_by(affiliate_id=affiliate.id, is_valid=True).count(),
+                'total_earnings': float(affiliate.total_earnings or 0),
+                'pending_payout': float(affiliate.pending_payout or 0),
+                'commission_rate': float(affiliate.commission_rate or 0)
+            }, room=f'affiliate_{affiliate.id}')
+
+        # client room update
+        client = campaign.client
+        if client:
+            campaigns = Campaign.query.filter_by(client_id=client.id).all()
+            total_clicks = sum(c.total_clicks or 0 for c in campaigns)
+            total_spend = sum(float(c.total_spend or 0) for c in campaigns)
+            active_count = sum(1 for c in campaigns if c.status == 'active')
+            socketio.emit('dashboard_update', {
+                'ts': time.time(),
+                'summary': {
+                    'total_campaigns': len(campaigns),
+                    'active_campaigns': active_count,
+                    'total_clicks': total_clicks,
+                    'total_spend': round(total_spend, 2),
+                },
+                'campaigns': [
+                    {
+                        'id': c.id,
+                        'name': c.name,
+                        'status': c.status,
+                        'total_clicks': c.total_clicks or 0,
+                        'total_spend': float(c.total_spend or 0),
+                    }
+                    for c in campaigns[:50]
+                ],
+            }, room=f'client_{client.id}')
+    except Exception:
+        pass  # don't let socket errors break redirect
+
     return redirect(campaign.offer_url, code=302)
 
 
@@ -264,6 +347,19 @@ def track_conversion():
     db.session.add(analytics)
     db.session.commit()
     
+    # push update to affiliate dashboard if applicable
+    try:
+        if lead.affiliate:
+            socketio.emit('dashboard_update', {
+                'ts': time.time(),
+                'valid_clicks': Click.query.filter_by(affiliate_id=lead.affiliate.id, is_valid=True).count(),
+                'total_earnings': float(lead.affiliate.total_earnings or 0),
+                'pending_payout': float(lead.affiliate.pending_payout or 0),
+                'commission_rate': float(lead.affiliate.commission_rate or 0)
+            }, room=f'affiliate_{lead.affiliate.id}')
+    except Exception:
+        pass
+
     return jsonify({
         'message': 'Conversion tracked successfully',
         'lead_id': lead.id,
