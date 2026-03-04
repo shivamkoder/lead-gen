@@ -21,10 +21,13 @@ services:
       - key: DATABASE_URL
         value :postgresql://leadgen_jxdt_user:STc4RFRy1LybBnn4yd1pW6LOOnVJ003E@dpg-d6k20ks50q8c73agaqd0-a/leadgen_jxdt
         fromDatabase:
-          name: leadgen-db
+          name: leadgen
           property: connectionString
 
 
 databases:
-  - name: leadgen-db
+  - name: leadgen
     plan: free
+envVars:
+  - key: PYTHON_VERSION
+    value: 3.11.9
