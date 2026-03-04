@@ -9,17 +9,17 @@ services:
     startCommand: gunicorn run:app
 
     envVars:
-    - key: PYTHON_VERSION
+     - key: PYTHON_VERSION
         value: 3.11.9
       
 
-    - key: FLASK_ENV
+     - key: FLASK_ENV
         value: production
 
-    - key: SECRET_KEY
+     - key: SECRET_KEY
         generateValue: true
 
-    - key: DATABASE_URL
+     - key: DATABASE_URL
         value : postgresql://leadgen_jxdt_user:STc4RFRy1LybBnn4yd1pW6LOOnVJ003E@dpg-d6k20ks50q8c73agaqd0-a/leadgen_jxdt
         fromDatabase:
          name: leadgen
