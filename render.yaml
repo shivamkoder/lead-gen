@@ -16,9 +16,10 @@ services:
         value: production
 
       - key: SECRET_KEY
-        generateValue: true
+        generateValue:993a02a43d6e71de74d0e091371579588f756a23d4548d5f7e6da272b0ed65e3
 
       - key: DATABASE_URL
+        value :postgresql://leadgen_jxdt_user:STc4RFRy1LybBnn4yd1pW6LOOnVJ003E@dpg-d6k20ks50q8c73agaqd0-a/leadgen_jxdt
         fromDatabase:
           name: leadgen-db
           property: connectionString
