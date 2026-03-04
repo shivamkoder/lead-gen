@@ -6,7 +6,7 @@ Run the Flask application
 """Legacy run script updated to new structure."""
 
 import os
-from backend.app import app
+from app import app
 
 if __name__ == '__main__':
     host = os.environ.get('HOST', '0.0.0.0')
