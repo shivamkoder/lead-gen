@@ -11,12 +11,15 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.6
+      envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
 
       - key: FLASK_ENV
         value: production
 
       - key: SECRET_KEY
-        generateValue: '993a02a43d6e71de74d0e091371579588f756a23d4548d5f7e6da272b0ed65e3'
+        generateValue: true
 
       - key: DATABASE_URL
         value : postgresql://leadgen_jxdt_user:STc4RFRy1LybBnn4yd1pW6LOOnVJ003E@dpg-d6k20ks50q8c73agaqd0-a/leadgen_jxdt
@@ -28,6 +31,4 @@ services:
 databases:
   - name: leadgen
     plan: free
-envVars:
-  - key: PYTHON_VERSION
-    value: 3.11.9
+
