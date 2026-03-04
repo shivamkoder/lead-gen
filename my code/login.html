@@ -190,6 +190,9 @@
         const data = await response.json();
 
         if (response.ok) {
+          // store token locally
+          localStorage.setItem('authToken', data.token);
+
           messageEl.style.display = 'block';
           messageEl.style.color = '#10b981'; // green
           messageEl.innerText = 'Login successful! Redirecting...';

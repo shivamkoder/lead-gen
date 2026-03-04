@@ -200,6 +200,10 @@ input:focus{
       const data = await response.json();
 
       if (response.ok) {
+        const session = await response.json();
+        // store token for later API calls
+        localStorage.setItem('authToken', session.token);
+
         messageEl.style.display = 'block';
         messageEl.style.color = '#10b981'; // green
         messageEl.innerText = 'Account created successfully! Redirecting...';
@@ -208,14 +212,20 @@ input:focus{
         if (role === 'client') {
             await fetch(`${API_BASE_URL}/client/register`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session.token}`
+                },
                 body: JSON.stringify({ company_name: `${firstName}'s Company` })
             });
             setTimeout(() => window.location.href = 'client_dashboard.html', 1500);
         } else if (role === 'affiliate') {
             await fetch(`${API_BASE_URL}/affiliate/register`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session.token}`
+                },
                 body: JSON.stringify({})
             });
             setTimeout(() => window.location.href = 'affiliate_dashboard.html', 1500);
