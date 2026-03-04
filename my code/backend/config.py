@@ -7,12 +7,12 @@ class Config:
     """Base configuration."""
     
     # Flask
-    SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key')
+    SECRET_KEY = os.getenv('SECRET_KEY', '993a02a43d6e71de74d0e091371579588f756a23d4548d5f7e6da272b0ed65e3')
     DEBUG = False
     TESTING = False
     
     # Database
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///leadgen.db')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'postgresql://leadgen_jxdt_user:STc4RFRy1LybBnn4yd1pW6LOOnVJ003E@dpg-d6k20ks50q8c73agaqd0-a/leadgen_jxdt')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # API
