@@ -23,7 +23,7 @@ services:
        value : postgresql://leadgen_jxdt_user:STc4RFRy1LybBnn4yd1pW6LOOnVJ003E@dpg-d6k20ks50q8c73agaqd0-a/leadgen_jxdt
        fromDatabase:
          name: leadgen
-          property: connectionString
+         property: connectionString
 
 
 databases:
