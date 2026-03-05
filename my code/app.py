@@ -1,46 +1,25 @@
 import os
 import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-# Add the current directory to the Python path
-sys.path.insert(0, os.path.dirname(__file__))
-
-from dotenv import load_dotenv
 from flask import Flask
-from backend.database.db import db, migrate
-from backend.config import config
 
-# Load environment variables from .env file
-load_dotenv()
-
-# import blueprints from routes
-# individual blueprints will be auto-discovered by register_routes
-
-
-def create_app(config_name=None):
-    """Application factory for the leadgen platform backend."""
-    if config_name is None:
-        config_name = os.getenv('FLASK_ENV', 'development')
-    
+def create_app():
     app = Flask(__name__)
-    app.config.from_object(config[config_name])
 
-    # initialize extensions
-    db.init_app(app)
-    migrate.init_app(app, db)
+    @app.route('/')
+    def home():
+        return "<h1>PPC Platform is live</h1>", 200
 
-    # register blueprints automatically
-    from backend.routes import register_routes
-    register_routes(app)
+    @app.route('/health')
+    def health():
+        return {"status": "ok"}, 200
 
     return app
 
-
-# Create app instance for production (Render/gunicorn)
 app = create_app()
 
-
-if __name__ == "__main__":
-    # Development server
-    host = os.getenv('HOST', '0.0.0.0')
+if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
-    app.run(host=host, port=port)
+    app.run(host='0.0.0.0', port=port)
+
