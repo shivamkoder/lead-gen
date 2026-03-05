@@ -6,25 +6,15 @@ services:
     plan: free
 
     buildCommand: cd "my code" && pip install -r requirements.txt
-    startCommand: cd "my code" && gunicorn --bind 0.0.0.0:$PORT -w 4 app:app
+    startCommand: cd "my code" && gunicorn --bind 0.0.0.0:$PORT -w 2 app:app
 
     envVars:
-     - key: PYTHON_VERSION
-       value: 3.11.9
-      
-
-     - key: FLASK_ENV
-       value: production
-
-     - key: SECRET_KEY
-       generateValue: true
-
-     - key: DATABASE_URL
-       value : postgresql://leadgen_jxdt_user:STc4RFRy1LybBnn4yd1pW6LOOnVJ003E@dpg-d6k20ks50q8c73agaqd0-a/leadgen_jxdt
-       
-
-
-databases:
-  - name: leadgen
-    plan: free
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        value: postgresql://leadgen_jxdt_user:STc4RFRy1LybBnn4yd1pW6LOOnVJ003E@dpg-d6k20ks50q8c73agaqd0-a/leadgen_jxdt
 
