@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from flask import Flask
 from backend.database.db import db, migrate
 from backend.config import config
+print("app finally loaded")
 
 # Load environment variables from .env file
 load_dotenv()
