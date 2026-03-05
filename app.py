@@ -13,12 +13,14 @@ load_dotenv()
 
 
 def create_app(config_name=None):
+    
     """Application factory for the leadgen platform backend."""
     if config_name is None:
         config_name = os.getenv('FLASK_ENV', 'development')
     
     app = Flask(__name__)
     app.config.from_object(config[config_name])
+    
 
     # initialize extensions
     db.init_app(app)
@@ -27,15 +29,16 @@ def create_app(config_name=None):
     # register blueprints automatically
     from backend.routes import register_routes
     register_routes(app)
+    @app.route("/")
+    def home():
+     return "Render deployment working"
 
     return app
 
 
 # Create app instance for production (Render/gunicorn)
 app = create_app()
-@app.route("/")
-def home():
-     return "Render deployment working"
+
 
 
 if __name__ == "__main__":
