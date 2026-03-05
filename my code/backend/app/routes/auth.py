@@ -5,8 +5,8 @@ User registration, login, logout, and password management
 
 from flask import Blueprint, request, jsonify
 from flask_login import login_user, logout_user, current_user
-from backend.app.extensions import db
-from backend.app.models import User
+from app.extensions import db
+from app.models import User
 import re
 
 auth_bp = Blueprint('auth', __name__)
@@ -214,4 +214,3 @@ def reset_password(token):
     # In production, verify the token and update the password
     
     return jsonify({'message': 'Password reset successful'}), 200
-

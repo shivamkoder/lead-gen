@@ -6,9 +6,9 @@ Campaign creation, listing, and PPC dashboard (clicks, spend).
 import time
 from flask import Blueprint, request, jsonify
 from flask_login import current_user
-from backend.app.extensions import db
-from backend.app.models import Client, Campaign, Click
-from backend.app.utils.decorators import login_required
+from app.extensions import db
+from app.models import Client, Campaign, Click
+from app.utils.decorators import login_required
 
 client_bp = Blueprint('client', __name__)
 
@@ -304,4 +304,3 @@ def dashboard_poll():
             for c in campaigns[:50]
         ],
     }), 200
-

@@ -5,9 +5,9 @@ Administrative endpoints for managing users, campaigns, and system
 
 from flask import Blueprint, request, jsonify
 from flask_login import current_user
-from backend.app.extensions import db
-from backend.app.models import User, Affiliate, Campaign, Lead, Payout, Analytics
-from backend.app.utils.decorators import login_required, roles_required
+from app.extensions import db
+from app.models import User, Affiliate, Campaign, Lead, Payout, Analytics
+from app.utils.decorators import login_required, roles_required
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -377,4 +377,3 @@ def get_analytics():
         'conversions': conversions,
         'conversion_rate': (conversions / clicks * 100) if clicks > 0 else 0
     }), 200
-
