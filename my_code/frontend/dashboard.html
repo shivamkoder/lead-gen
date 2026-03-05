@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lead Gen Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body{font-family:Arial,Helvetica,sans-serif;background:#f6f7fb;margin:0;padding:20px}
+        .container{max-width:1100px;margin:0 auto}
+        .cards{display:flex;gap:12px;margin-bottom:18px}
+        .card{flex:1;background:#fff;padding:16px;border-radius:8px;box-shadow:0 1px 4px rgba(16,24,40,.05)}
+        .card h3{margin:0 0 8px;font-size:14px;color:#6b7280}
+        .card p{margin:0;font-size:22px;font-weight:600}
+        #chartWrap{background:#fff;padding:16px;border-radius:8px;box-shadow:0 1px 4px rgba(16,24,40,.05);margin-bottom:18px}
+        table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden}
+        th,td{padding:10px;text-align:left;border-bottom:1px solid #eef2f7}
+        th{background:#f8fafc}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Lead Gen Platform Dashboard</h1>
+
+        <div class="cards" id="overview">
+            <div class="card">
+                <h3>Total Campaigns</h3>
+                <p id="totalCampaigns">—</p>
+            </div>
+            <div class="card">
+                <h3>Active Campaigns</h3>
+                <p id="activeCampaigns">—</p>
+            </div>
+            <div class="card">
+                <h3>Total Clicks</h3>
+                <p id="totalClicks">—</p>
+            </div>
+            <div class="card">
+                <h3>Spend</h3>
+                <p id="totalSpend">—</p>
+            </div>
+        </div>
+
+        <div id="chartWrap">
+            <canvas id="clickChart" height="120"></canvas>
+        </div>
+
+        <h2>Recent Traffic</h2>
+        <table id="recentTable">
+            <thead>
+                <tr><th>Time</th><th>Campaign</th><th>IP</th><th>Device</th><th>Browser</th><th>Referrer</th></tr>
+            </thead>
+            <tbody>
+                <tr><td colspan="6">Loading…</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+    // Minimal dashboard JS: fetches summary & recent traffic then renders a chart
+    const formatCurrency = v => '$' + Number(v||0).toFixed(2);
+
+    // simple auth guard: if user isn't logged in, redirect to login page
+    if(!localStorage.getItem('token')){
+        document.body.innerHTML = '<div style="padding:40px;text-align:center;"><h2>Please <a href="/login.html">log in</a> to view dashboard</h2></div>';
+        throw new Error('no auth token');
+    }
+
+    function authHeaders(){
+        const token = localStorage.getItem('token');
+        if(token){
+            return { 'Authorization': 'Bearer ' + token };
+        }
+        return {};
+    }
+    async function fetchSummary(){
+        try{
+            const resp = await fetch('/analytics/client', {
+                headers: authHeaders()
+            });
+            if(!resp.ok) throw new Error('summary fetch failed');
+            return await resp.json();
+        }catch(e){console.warn(e);return null}
+    }
+
+    async function fetchCampaigns(){
+        try{
+            const resp = await fetch('/campaigns', { headers: authHeaders() });
+            if(!resp.ok) throw new Error('campaigns fetch failed');
+            return await resp.json();
+        }catch(e){console.warn(e);return []}
+    }
+
+    async function fetchLive(){
+        try{
+            const resp = await fetch('/analytics/live', { headers: authHeaders() });
+            if(!resp.ok) throw new Error('live fetch failed');
+            return await resp.json();
+        }catch(e){console.warn(e);return []}
+    }
+
+    function updateOverview(data){
+        document.getElementById('totalCampaigns').textContent = data.total_campaigns ?? '—';
+        document.getElementById('activeCampaigns').textContent = data.active_campaigns ?? '—';
+        document.getElementById('totalClicks').textContent = data.total_clicks ?? '—';
+        document.getElementById('totalSpend').textContent = formatCurrency(data.spend ?? 0);
+    }
+
+    function renderRecent(rows){
+        const tb = document.querySelector('#recentTable tbody');
+        tb.innerHTML = '';
+        if(!rows || rows.length===0){
+            tb.innerHTML = '<tr><td colspan="6">No recent traffic</td></tr>';
+            return;
+        }
+        rows.slice(0,50).forEach(r => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${new Date(r.timestamp).toLocaleString()}</td>
+                <td>${r.campaign_name||r.campaign_slug||'—'}</td>
+                <td>${r.ip_address||'—'}</td>
+                <td>${r.device_type||'—'}</td>
+                <td>${r.browser||'—'}</td>
+                <td>${r.referrer||'—'}</td>`;
+            tb.appendChild(tr);
+        });
+    }
+
+    let chartInstance = null;
+    function renderChart(labels, values){
+        const ctx = document.getElementById('clickChart').getContext('2d');
+        if(chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(ctx, {
+            type:'line',
+            data:{labels:labels, datasets:[{label:'Clicks',data:values,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.08)', tension:0.2}]},
+            options:{scales:{y:{beginAtZero:true}}}
+        });
+    }
+
+    async function refresh(){
+        const summary = await fetchSummary();
+        if(summary) updateOverview(summary);
+
+        const live = await fetchLive();
+        renderRecent(live);
+
+        // If summary contains timeseries (last_7_days), draw chart
+        if(summary && summary.last_7_days){
+            const labels = summary.last_7_days.map(d=>d.date);
+            const values = summary.last_7_days.map(d=>d.clicks);
+            renderChart(labels, values);
+        }
+    }
+
+    // initial load
+    refresh();
+    // refresh every 30s
+    setInterval(refresh, 30000);
+    </script>
+</body>
+</html>

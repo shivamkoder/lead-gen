@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Testimonials - LeadFlow</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Inter',sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body{
+  background: radial-gradient(circle at top, #0f172a 0%, #020617 70%);
+  color:#fff;
+}
+
+/* Layout */
+.container{
+  width:90%;
+  max-width:1200px;
+  margin:auto;
+  padding:80px 0;
+}
+
+/* Navbar */
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:20px 5%;
+  position:fixed;
+  width:100%;
+  top:0;
+  backdrop-filter: blur(10px);
+  background:rgba(2,6,23,0.6);
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  z-index:1000;
+}
+
+.logo{
+  font-weight:800;
+  font-size:20px;
+  color:#22d3ee;
+}
+
+.nav-links a{
+  margin-left:30px;
+  text-decoration:none;
+  color:#cbd5e1;
+  font-weight:500;
+  transition:.3s;
+}
+
+.nav-links a:hover{
+  color:#22d3ee;
+}
+
+.nav-btn{
+  background:#22d3ee;
+  color:#000;
+  padding:10px 20px;
+  border-radius:8px;
+  text-decoration:none;
+  font-weight:600;
+}
+
+/* Section Titles */
+.section-title{
+  text-align:center;
+  font-size:42px;
+  font-weight:800;
+  margin-bottom:10px;
+}
+
+.section-subtitle{
+  text-align:center;
+  color:#94a3b8;
+  margin-bottom:60px;
+}
+
+/* Grid */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+  gap:30px;
+}
+
+/* Card */
+.card{
+  background:linear-gradient(145deg, rgba(30,41,59,0.6), rgba(15,23,42,0.6));
+  border:1px solid rgba(148,163,184,0.15);
+  border-radius:20px;
+  padding:30px;
+  transition:.3s;
+}
+
+.card:hover{
+  transform:translateY(-5px);
+  border-color:#22d3ee;
+}
+
+/* Testimonials */
+.stars{
+  color:#22d3ee;
+  margin-bottom:15px;
+}
+
+.testimonial-text{
+  color:#cbd5e1;
+  line-height:1.6;
+  margin-bottom:20px;
+}
+
+.author{
+  font-weight:600;
+}
+
+.role{
+  color:#94a3b8;
+  font-size:14px;
+}
+
+@media(max-width:768px){
+  .section-title{font-size:32px;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <div class="logo">LeadFlow</div>
+  <div class="nav-links">
+    <a href="first.html">Home</a>
+    <a href="first.html#solutions">Solutions</a>
+    <a href="signup.html">Get Started</a>
+  </div>
+</div>
+
+<!-- TESTIMONIALS SECTION -->
+<section id="testimonials" class="container" style="padding-top:140px;">
+  <h2 class="section-title">Loved by Growth Teams</h2>
+  <p class="section-subtitle">See what our customers say.</p>
+
+  <div class="grid">
+    <div class="card">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">
+        "LeadFlow transformed our affiliate program. We scaled from 50 to 500 affiliates in 3 months."
+      </p>
+      <div class="author">Sarah Chen</div>
+      <div class="role">Head of Growth</div>
+    </div>
+
+    <div class="card">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">
+        "The real-time analytics saved us $20K/month by cutting underperforming campaigns instantly."
+      </p>
+      <div class="author">Marcus Johnson</div>
+      <div class="role">CEO</div>
+    </div>
+
+    <div class="card">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">
+        "Best lead gen platform we've used. Clean UI and powerful reporting."
+      </p>
+      <div class="author">Elena Rodriguez</div>
+      <div class="role">Marketing Director</div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
