@@ -2,7 +2,7 @@ services:
   - type: web
     name: leadgen-platform
     runtime: python
-    region: Oregeon(US West)
+    region: singapore
     plan: free
 
     buildCommand: pip install -r requirements.txt
