@@ -32,6 +32,9 @@ def create_app(config_name=None):
 
 # Create app instance for production (Render/gunicorn)
 app = create_app()
+@app.route("/")
+def home():
+     return "Render deployment working"
 
 
 if __name__ == "__main__":
