@@ -6,7 +6,7 @@ services:
     plan: free
 
     buildCommand: pip install -r "my code/requirements.txt"
-    startCommand: cd "my code" && gunicorn --bind 0.0.0.0:$PORT -w 2 app:app
+    startCommand: cd "my code" && python -m gunicorn --bind 0.0.0.0:$PORT -w 2 app:app
 
     envVars:
       - key: PYTHON_VERSION
