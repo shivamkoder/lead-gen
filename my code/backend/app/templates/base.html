@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}PPC Affiliate Platform{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    body { background: radial-gradient(circle at top, #0f172a 0%, #020617 70%); color: #e2e8f0; min-height: 100vh; }
+    a { color: #22d3ee; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .nav { padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+    .nav a { color: #94a3b8; }
+    .nav a:hover { color: #22d3ee; }
+    .btn { display: inline-block; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; transition: 0.2s; }
+    .btn-primary { background: #22d3ee; color: #0f172a; }
+    .btn-primary:hover { background: #06b6d4; }
+    .btn-ghost { background: transparent; color: #22d3ee; }
+    .btn-ghost:hover { background: rgba(34, 211, 238, 0.1); }
+    .err { color: #f87171; font-size: 0.875rem; margin-top: 0.25rem; }
+    .msg { color: #4ade80; font-size: 0.875rem; margin-top: 0.25rem; }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body>
+  {% block nav %}
+  <nav class="nav">
+    <a href="/">PPC Platform</a>
+    <div>
+      {% block nav_extra %}<a href="/login">Login</a> &nbsp; <a href="/signup" class="btn btn-primary">Sign up</a>{% endblock %}
+    </div>
+  </nav>
+  {% endblock %}
+  <main>{% block content %}{% endblock %}</main>
+  <script src="/static/js/api.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
