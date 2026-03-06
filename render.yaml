@@ -5,7 +5,7 @@ services:
     region: singapore
     plan: free
 
-    buildCommand: cd "my code" && pip install -r requirements.txt
+    buildCommand: pip install -r "my code/requirements.txt"
     startCommand: cd "my code" && gunicorn --bind 0.0.0.0:$PORT -w 2 app:app
 
     envVars:
