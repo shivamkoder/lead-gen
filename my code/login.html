@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - LeadFlow</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #0f172a 0%, #020617 70%);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 420px;
+      background: linear-gradient(145deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.6));
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      border-radius: 20px;
+      padding: 40px;
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #94a3b8;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      color: #cbd5e1;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: #0f172a;
+      color: #fff;
+      outline: none;
+      transition: .3s;
+    }
+
+    input:focus {
+      border-color: #22d3ee;
+    }
+
+    .login-btn {
+      width: 100%;
+      margin-top: 15px;
+      padding: 14px;
+      border-radius: 10px;
+      background: #22d3ee;
+      color: #000;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: .3s;
+    }
+
+    .login-btn:hover {
+      background: #06b6d4;
+    }
+
+    .signup-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #94a3b8;
+    }
+
+    .signup-link a {
+      color: #22d3ee;
+      text-decoration: none;
+    }
+
+    .back {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .forgot-password {
+      text-align: right;
+      margin-top: 8px;
+    }
+
+    .forgot-password a {
+      color: #22d3ee;
+      text-decoration: none;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <a href="first.html" class="back">← Back</a>
+
+  <div class="login-container">
+    <h2>Welcome Back</h2>
+    <p class="subtitle">Log in to your account</p>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="login-email" placeholder="you@example.com" required>
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="Enter password" required>
+        <div class="forgot-password">
+          <a href="#">Forgot password?</a>
+        </div>
+      </div>
+
+      <!-- Error/Success Message Container -->
+      <div id="login-message" style="margin-top: 10px; font-size: 14px; text-align: center; display: none;"></div>
+
+      <button type="submit" class="login-btn" id="login-submit">Login</button>
+    </form>
+
+    <div class="signup-link">
+      Don't have an account? <a href="signup.html">Sign Up</a>
+    </div>
+  </div>
+
+  <script>
+    // Point this to your backend's host if the frontend is served separately
+    const API_BASE_URL = 'http://127.0.0.1:5000/api';
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      const messageEl = document.getElementById('login-message');
+      const submitBtn = document.getElementById('login-submit');
+
+      messageEl.style.display = 'none';
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Logging in...';
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            email: email,
+            password: password,
+            remember: true
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // store token locally
+          localStorage.setItem('authToken', data.token);
+
+          messageEl.style.display = 'block';
+          messageEl.style.color = '#10b981'; // green
+          messageEl.innerText = 'Login successful! Redirecting...';
+
+          const role = data.user?.role || 'user';
+
+          if (role === 'client') {
+            setTimeout(() => window.location.href = 'client_dashboard.html', 1000);
+          } else if (role === 'affiliate') {
+            setTimeout(() => window.location.href = 'affiliate_dashboard.html', 1000);
+          } else {
+            setTimeout(() => window.location.href = 'first.html', 1000);
+          }
+        } else {
+          messageEl.style.display = 'block';
+          messageEl.style.color = '#ef4444'; // red
+          messageEl.innerText = data.error || data.message || 'Login failed.';
+          submitBtn.disabled = false;
+          submitBtn.innerText = 'Login';
+        }
+      } catch (err) {
+        console.error(err);
+        messageEl.style.display = 'block';
+        messageEl.style.color = '#ef4444';
+        messageEl.innerText = 'Network error. Make sure the backend is running.';
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'Login';
+      }
+    });
+  </script>
+
+</body>
+
+</html>
