@@ -4,8 +4,8 @@ Main application factory and initialization
 """
 
 from flask import Flask
-from app.config import Config
-from app.extensions import db, migrate, login_manager, cors
+from backend.app.config import Config
+from backend.app.extensions import db, migrate, login_manager, cors
 
 
 def create_app(config_class=Config):
@@ -45,3 +45,4 @@ def create_app(config_class=Config):
         db.create_all()
     
     return app
+
