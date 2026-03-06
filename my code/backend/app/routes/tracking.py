@@ -8,9 +8,9 @@ from datetime import datetime, timedelta
 import time
 from flask import Blueprint, request, jsonify, redirect
 from flask_login import current_user
-from app.extensions import db, socketio
-from app.models import Campaign, Lead, Affiliate, Analytics, Click
-from app.services.fraud import FraudDetector
+from backend.app.extensions import db, socketio
+from backend.app.models import Campaign, Lead, Affiliate, Analytics, Click
+from backend.app.services.fraud import FraudDetector
 from flask_socketio import join_room
 import uuid
 
@@ -417,3 +417,4 @@ def get_campaign_stats(campaign_id):
         'total_payout': float(total_payout),
         'conversion_rate': (conversions / clicks * 100) if clicks > 0 else 0
     }), 200
+
