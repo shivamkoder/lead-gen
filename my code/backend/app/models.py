@@ -6,7 +6,7 @@ All SQLAlchemy models for the application
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
-from app.extensions import db
+from backend.app.extensions import db
 
 
 class User(UserMixin, db.Model):
@@ -213,3 +213,4 @@ class Analytics(db.Model):
     
     def __repr__(self):
         return f'<Analytics {self.event_type}>'
+
