@@ -6,9 +6,9 @@ Affiliate management, earnings, and marketplace endpoints
 import time
 from flask import Blueprint, request, jsonify
 from flask_login import current_user
-from app.extensions import db
-from app.models import Affiliate, Campaign, Lead, Payout, Click
-from app.utils.decorators import login_required, roles_required
+from backend.app.extensions import db
+from backend.app.models import Affiliate, Campaign, Lead, Payout, Click
+from backend.app.utils.decorators import login_required, roles_required
 import secrets
 import string
 
@@ -314,3 +314,4 @@ def get_tracking_link(campaign_id):
         'referral_code': current_user.affiliate.referral_code,
         'affiliate_cpc': campaign.affiliate_cpc,
     }), 200
+
