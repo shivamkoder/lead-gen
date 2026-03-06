@@ -1,9 +1,0 @@
-services:
-  - type: web
-    name: leadgen-platform
-    runtime: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn --bind 0.0.0.0:$PORT -w 4 app:app
-    envVars:
-      - key: FLASK_ENV
-        value: production
