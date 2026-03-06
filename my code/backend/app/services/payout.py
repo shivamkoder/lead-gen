@@ -4,8 +4,8 @@ Handle affiliate payouts and payment processing
 """
 
 from datetime import datetime
-from app.extensions import db
-from app.models import Affiliate, Payout
+from backend.app.extensions import db
+from backend.app.models import Affiliate, Payout
 
 
 class PayoutService:
@@ -195,3 +195,5 @@ class PayoutService:
         """Calculate net payout after fees"""
         fees = self.calculate_fees(amount, method)
         return amount - fees
+
+
