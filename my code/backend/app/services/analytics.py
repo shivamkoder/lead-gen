@@ -5,8 +5,8 @@ Generate reports and analytics for campaigns and affiliates
 
 from datetime import datetime, timedelta
 from sqlalchemy import func
-from app.extensions import db
-from app.models import Analytics, Campaign, Affiliate, Lead
+from backend.app.extensions import db
+from backend.app.models import Analytics, Campaign, Affiliate, Lead
 
 
 class AnalyticsService:
@@ -210,3 +210,5 @@ class AnalyticsService:
         return {
             s.status: s.count for s in statuses
         }
+
+
