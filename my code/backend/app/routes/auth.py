@@ -16,8 +16,8 @@ import os
 from flask import Blueprint, request, jsonify, current_app
 from flask_login import login_user, logout_user, current_user, login_required
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
-from app.extensions import db
-from app.models import User
+from backend.app.extensions import db
+from backend.app.models import User
 import re
 
 auth_bp = Blueprint('auth', __name__)
