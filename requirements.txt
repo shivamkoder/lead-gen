@@ -1,7 +1,10 @@
 Flask==3.0.2
 Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.0.5
 Flask-Login==0.6.3
 Flask-Cors==4.0.0
+Flask-Limiter==3.5.0
+Flask-SocketIO==5.3.6
 python-dotenv==1.0.1
 email-validator==2.1.0
 gunicorn==21.2.0
@@ -17,3 +20,10 @@ greenlet==3.0.3
 requests==2.31.0
 user-agents==2.2.0
 psycopg2-binary==2.9.9
+
+# Rate limiting backend (Redis preferred in production; memory fallback for dev)
+redis==5.0.1
+limits==3.6.0
+
+# Simple HTTP IP reputation check (no paid API needed)
+httpx==0.26.0
