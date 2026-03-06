@@ -23,13 +23,14 @@ def create_app(config_class=Config):
     socketio.init_app(app)
     
     # Register blueprints
-    from app.routes.auth import auth_bp
-    from app.routes.tracking import tracking_bp, ppc_bp
-    from app.routes.affiliate import affiliate_bp
-    from app.routes.client import client_bp
-    from app.routes.admin import admin_bp
-    from app.routes.demo import demo_bp
-    from app.routes.pages import pages_bp
+    from backend.app.routes.auth import auth_bp
+    from backend.app.routes.tracking import tracking_bp, ppc_bp
+    from backend.app.routes.affiliate import affiliate_bp
+    from backend.app.routes.client import client_bp
+    from backend.app.routes.admin import admin_bp
+    from backend.app.routes.demo import demo_bp
+    from backend.app.routes.pages import pages_bp
+    from backend.app.extensions import socketio
     
     app.register_blueprint(pages_bp)  # Frontend: /, /signup, /login, /dashboard/*
     app.register_blueprint(ppc_bp)  # Public PPC: /t/<campaign_id>?aff=affiliateID
@@ -45,4 +46,5 @@ def create_app(config_class=Config):
         db.create_all()
     
     return app
+
 
